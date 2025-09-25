@@ -5,97 +5,91 @@ import matplotlib.pyplot as plt
 
 
 # Functions and procedures
-def plot_predictions(train_data, train_labels,  test_data, test_labels,  predictions):
-  """
-  Plots training data, test data and compares predictions.
-  """
-  plt.figure(figsize=(6, 5))
-  # Plot training data in blue
-  plt.scatter(train_data, train_labels, c="b", label="Training data")
-  # Plot test data in green
-  plt.scatter(test_data, test_labels, c="g", label="Testing data")
-  # Plot the predictions in red (predictions were made on the test data)
-  plt.scatter(test_data, predictions, c="r", label="Predictions")
-  # Show the legend
-  plt.legend(shadow='True')
-  # Set grids
-  plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
-  # Some text
-  plt.title('Model Results', family='Arial', fontsize=14)
-  plt.xlabel('X axis values', family='Arial', fontsize=11)
-  plt.ylabel('Y axis values', family='Arial', fontsize=11)
-  # Show
-  plt.savefig('model_results.png', dpi=120)
+def plot_predictions(train_data, train_labels, test_data, test_labels, predictions):
+    """
+    Plots training data, test data and compares predictions.
+    """
+    plt.figure(figsize=(6, 5))
+    # Plot training data in blue
+    plt.scatter(train_data, train_labels, c="b", label="Training data")
+    # Plot test data in green
+    plt.scatter(test_data, test_labels, c="g", label="Testing data")
+    # Plot the predictions in red
+    plt.scatter(test_data, predictions, c="r", label="Predictions")
+    # Show the legend
+    plt.legend(shadow=True)
+    # Set grids
+    plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
+    # Some text
+    plt.title('Model Results', family='Arial', fontsize=14)
+    plt.xlabel('X axis values', family='Arial', fontsize=11)
+    plt.ylabel('Y axis values', family='Arial', fontsize=11)
+    # Save figure
+    plt.savefig('model_results.png', dpi=120)
 
 
+def mae(y_true, y_pred):
+    """
+    Calculates mean absolute error between y_true and y_pred.
+    """
+    return tf.keras.metrics.mean_absolute_error(y_true, y_pred)
 
-def mae(y_test, y_pred):
-  """
-  Calculuates mean absolute error between y_test and y_preds.
-  """
-  return tf.metrics.mean_absolute_error(y_test, y_pred)
-  
 
-def mse(y_test, y_pred):
-  """
-  Calculates mean squared error between y_test and y_preds.
-  """
-  return tf.metrics.mean_squared_error(y_test, y_pred)
+def mse(y_true, y_pred):
+    """
+    Calculates mean squared error between y_true and y_pred.
+    """
+    return tf.keras.metrics.mean_squared_error(y_true, y_pred)
 
 
 # Check Tensorflow version
-print(tf.__version__)
+print("TensorFlow version:", tf.__version__)
 
-
-# Create features
+# Create features and labels
 X = np.arange(-100, 100, 4)
-
-# Create labels
 y = np.arange(-90, 110, 4)
-
 
 # Split data into train and test sets
 N = 25
-X_train = X[:N] # first 40 examples (80% of data)
+X_train = X[:N]
 y_train = y[:N]
-
-X_test = X[N:] # last 10 examples (20% of data)
+X_test = X[N:]
 y_test = y[N:]
 
-
-# Take a single example of X
-input_shape = X[0].shape 
-
-# Take a single example of y
-output_shape = y[0].shape
-
+# Reshape input arrays for Keras (samples, features)
+X_train = X_train.reshape(-1, 1)
+X_test = X_test.reshape(-1, 1)
 
 # Set random seed
 tf.random.set_seed(1989)
 
 # Create a model using the Sequential API
 model = tf.keras.Sequential([
-    tf.keras.layers.Dense(1), 
+    tf.keras.layers.Dense(1, input_shape=(1,)), 
     tf.keras.layers.Dense(1)
-    ])
+])
 
 # Compile the model
-model.compile(loss = tf.keras.losses.mae,
-              optimizer = tf.keras.optimizers.SGD(),
-              metrics = ['mae'])
+model.compile(
+    loss=tf.keras.losses.MeanAbsoluteError(),
+    optimizer=tf.keras.optimizers.SGD(),
+    metrics=['mae']
+)
 
 # Fit the model
-model.fit(X_train, y_train, epochs=100)
+model.fit(X_train, y_train, epochs=100, verbose=0)
 
-
-# Make and plot predictions for model_1
+# Make predictions
 y_preds = model.predict(X_test)
-plot_predictions(train_data=X_train, train_labels=y_train,  test_data=X_test, test_labels=y_test,  predictions=y_preds)
 
+# Plot predictions
+plot_predictions(train_data=X_train, train_labels=y_train,
+                 test_data=X_test, test_labels=y_test,
+                 predictions=y_preds)
 
-# Calculate model_1 metrics
-mae_1 = np.round(float(mae(y_test, y_preds.squeeze()).numpy()), 2)
-mse_1 = np.round(float(mse(y_test, y_preds.squeeze()).numpy()), 2)
+# Calculate metrics
+mae_1 = np.round(float(tf.reduce_mean(mae(y_test, y_preds.squeeze())).numpy()), 2)
+mse_1 = np.round(float(tf.reduce_mean(mse(y_test, y_preds.squeeze())).numpy()), 2)
 print(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
 
 print('Done')
