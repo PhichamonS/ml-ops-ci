@@ -32,14 +32,18 @@ def mae(y_true, y_pred):
     """
     Calculates mean absolute error between y_true and y_pred.
     """
-    return tf.keras.metrics.mean_absolute_error(y_true, y_pred)
+    metric = tf.keras.metrics.MeanAbsoluteError()
+    metric.update_state(y_true, y_pred)
+    return metric.result()
 
 
 def mse(y_true, y_pred):
     """
     Calculates mean squared error between y_true and y_pred.
     """
-    return tf.keras.metrics.mean_squared_error(y_true, y_pred)
+    metric = tf.keras.metrics.MeanSquaredError()
+    metric.update_state(y_true, y_pred)
+    return metric.result()
 
 
 # Check Tensorflow version
@@ -88,8 +92,8 @@ plot_predictions(train_data=X_train, train_labels=y_train,
                  predictions=y_preds)
 
 # Calculate metrics
-mae_1 = np.round(float(tf.reduce_mean(mae(y_test, y_preds.squeeze())).numpy()), 2)
-mse_1 = np.round(float(tf.reduce_mean(mse(y_test, y_preds.squeeze())).numpy()), 2)
+mae_1 = np.round(float(mae(y_test, y_preds.squeeze()).numpy()), 2)
+mse_1 = np.round(float(mse(y_test, y_preds.squeeze()).numpy()), 2)
 print(f'\nMean Absolute Error = {mae_1}, Mean Squared Error = {mse_1}.')
 
 print('Done')
