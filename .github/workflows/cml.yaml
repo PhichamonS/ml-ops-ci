@@ -1,42 +1,20 @@
-name: mlops-example-tensorflow-regression
-
-on:
-  push:
-    branches: [ main ]  # Only trigger on main branch pushes
-
+name: mlops-exaple-tensorflow-regression
+on: [push]
 jobs:
-  train-and-report:
+  run:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Train model and generate report
+      - uses: actions/checkout@v5
+      - name: 'Train my model'
         env:
           repo_token: ${{ secrets.MY_PAT }}
         run: |
-          set -e  # Stop if any command fails
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          
-          echo "Starting model training..."
-          python model.py
 
+          # Your ML workflow goes here
+          pip install -r requirements.txt
+          python model.py
+          
           echo "## Model Metrics" > report.md
           cat metrics.txt >> report.md
-
-          echo "Training complete. Posting report..."
+          
           cml-send-comment report.md
