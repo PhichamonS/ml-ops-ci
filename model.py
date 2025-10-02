@@ -5,27 +5,40 @@ import matplotlib.pyplot as plt
 
 
 # Functions and procedures
-def plot_predictions(train_data, train_labels,  test_data, test_labels,  predictions):
-  """
-  Plots training data, test data and compares predictions.
-  """
-  plt.figure(figsize=(6, 5))
-  # Plot training data in blue
-  plt.scatter(train_data, train_labels, c="b", label="Training data")
-  # Plot test data in green
-  plt.scatter(test_data, test_labels, c="g", label="Testing data")
-  # Plot the predictions in red (predictions were made on the test data)
-  plt.scatter(test_data, predictions, c="r", label="Predictions")
-  # Show the legend
-  plt.legend(shadow='True')
-  # Set grids
-  plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
-  # Some text
-  plt.title('Model Results', fontsize=14)
-  plt.xlabel('X axis values', fontsize=11)
-  plt.ylabel('Y axis values', fontsize=11)
-  # Show
-  plt.savefig('model_results.png', dpi=120)
+def plot_predictions(train_data, train_labels, test_data, test_labels, predictions, save_path='model_results.png', show=True):
+    """
+    Plot training, testing, and prediction results.
+
+    Args:
+        train_data (array-like): Feature values for training data.
+        train_labels (array-like): Target labels for training data.
+        test_data (array-like): Feature values for test data.
+        test_labels (array-like): Target labels for test data.
+        predictions (array-like): Model predictions on test data.
+        save_path (str, optional): Path to save the plot. Default is 'model_results.png'.
+        show (bool, optional): Whether to display the plot. Default is True.
+    """
+    # Basic validation
+    assert len(train_data) == len(train_labels), "train_data and train_labels must have the same length"
+    assert len(test_data) == len(test_labels), "test_data and test_labels must have the same length"
+    assert len(test_data) == len(predictions), "test_data and predictions must have the same length"
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(train_data, train_labels, c="b", label="Training data", alpha=0.6)
+    plt.scatter(test_data, test_labels, c="g", label="Testing data", alpha=0.6)
+    plt.scatter(test_data, predictions, c="r", label="Predictions", alpha=0.6)
+
+    plt.legend(shadow=True)
+    plt.grid(which='major', c='#cccccc', linestyle='--', alpha=0.5)
+    plt.title('Model Results', fontsize=14)
+    plt.xlabel('X axis values', fontsize=11)
+    plt.ylabel('Y axis values', fontsize=11)
+
+    if save_path:
+        plt.savefig(save_path, dpi=120)
+    if show:
+        plt.show()
+
 
 
 def mae(y_true, y_pred):
