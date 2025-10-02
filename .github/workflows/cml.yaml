@@ -1,8 +1,9 @@
-name: mlops-exaple-tensorflow-regression
+name: mlops-example
 on: [push]
 jobs:
   run:
     runs-on: ubuntu-latest
+    container: docker://ghcr.io/iterative/cml:0-dvc2-base1
     steps:
       - uses: actions/checkout@v5
       - name: 'Train my model'
@@ -14,7 +15,8 @@ jobs:
           pip install -r requirements.txt
           python model.py
           
-          echo "## Model Metrics" > report.md
+          # Create CML report
           cat metrics.txt >> report.md
-          
-          cml-send-comment report.md
+          echo "## Model Metrics" > report.md
+
+          cml comment create report.md
