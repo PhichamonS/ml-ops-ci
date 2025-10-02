@@ -1,22 +1,27 @@
 name: mlops-example
 on: [push]
+
 jobs:
   run:
     runs-on: ubuntu-latest
     container: docker://ghcr.io/iterative/cml:0-dvc2-base1
+
     steps:
       - uses: actions/checkout@v5
-      - name: 'Train my model'
+
+      - name: Train and Report
         env:
           repo_token: ${{ secrets.MY_PAT }}
         run: |
-
-          # Your ML workflow goes here
+          # Install dependencies
           pip install -r requirements.txt
+
+          # Train your model
           python model.py
           
           # Create CML report
-          cat metrics.txt >> report.md
           echo "## Model Metrics" > report.md
+          cat metrics.txt >> report.md
 
-          cml comment create report.md
+          # Post report as comment
+          cml comment create --file report.md
